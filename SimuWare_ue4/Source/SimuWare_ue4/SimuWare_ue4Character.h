@@ -86,10 +86,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	uint8 bUsingMotionControllers : 1;
 
+	UPROPERTY(EditAnywhere)
+		TArray<TSubclassOf<class AItem>> Inventory;
+
+
 protected:
 	
 	/** Fires a projectile. */
 	void OnFire();
+
+	void ItemUp();
+	void ItemDown();
+	void DeployItem();
 
 	/** Resets HMD orientation and position in VR. */
 	void OnResetVR();
@@ -139,6 +147,7 @@ protected:
 	bool EnableTouchscreenMovement(UInputComponent* InputComponent);
 
 public:
+	int8 ItemIdx;
 	/** Returns Mesh1P subobject **/
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	/** Returns FirstPersonCameraComponent subobject **/

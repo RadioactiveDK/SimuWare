@@ -2,6 +2,7 @@
 
 #include "SimuWare_ue4Character.h"
 #include "SimuWare_ue4Projectile.h"
+#include "Item.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -19,6 +20,8 @@ DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
 ASimuWare_ue4Character::ASimuWare_ue4Character()
 {
+	ItemIdx = 0;
+
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 
@@ -119,6 +122,11 @@ void ASimuWare_ue4Character::SetupPlayerInputComponent(class UInputComponent* Pl
 
 	// Bind fire event
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASimuWare_ue4Character::OnFire);
+
+	PlayerInputComponent->BindAction("ItemUp", IE_Pressed, this, &ASimuWare_ue4Character::ItemUp);
+	PlayerInputComponent->BindAction("ItemDown", IE_Pressed, this, &ASimuWare_ue4Character::ItemDown);
+	PlayerInputComponent->BindAction("DeployItem", IE_Pressed, this, &ASimuWare_ue4Character::DeployItem);
+
 
 	// Enable touchscreen input
 	EnableTouchscreenMovement(PlayerInputComponent);
@@ -297,4 +305,51 @@ bool ASimuWare_ue4Character::EnableTouchscreenMovement(class UInputComponent* Pl
 	}
 	
 	return false;
+}
+
+void ASimuWare_ue4Character::DeployItem()
+{
+	if (Inventory[ItemIdx] != nullptr)
+	{
+		UWorld* const World = GetWorld();
+		if (World != nullptr)
+		{
+			if (bUsingMotionControllers)
+			{
+				const FRotator SpawnRotation = VR_MuzzleLocation->GetComponentRotation();
+				const FVector SpawnLocation = VR_MuzzleLocation->GetComponentLocation();
+				World->SpawnActor<AItem>(Inventory[ItemIdx], SpawnLocation, SpawnRotation);
+			}
+			else
+			{
+				const FRotator SpawnRotation = GetControlRotation();
+				const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
+
+				//Set Spawn Collision Handling Override
+				FActorSpawnParameters ActorSpawnParams;
+				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+
+				// spawn the projectile at the muzzle
+				World->SpawnActor<AItem>(Inventory[ItemIdx], SpawnLocation, SpawnRotation, ActorSpawnParams);
+			}
+		}
+	}
+
+	// try and play the sound if specified
+	if (FireSound != nullptr)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+	}
+
+}
+
+void ASimuWare_ue4Character::ItemUp()
+{
+	ItemIdx = (ItemIdx + 1) % 2;
+}
+
+void ASimuWare_ue4Character::ItemDown()
+{
+	if (ItemIdx == 0)ItemIdx = 2;
+	ItemIdx--;
 }
