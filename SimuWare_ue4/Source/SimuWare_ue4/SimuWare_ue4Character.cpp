@@ -345,11 +345,11 @@ void ASimuWare_ue4Character::DeployItem()
 
 void ASimuWare_ue4Character::ItemUp()
 {
-	ItemIdx = (ItemIdx + 1) % 2;
+	ItemIdx = (ItemIdx + 1) % 5;
 }
 
 void ASimuWare_ue4Character::ItemDown()
 {
-	if (ItemIdx == 0)ItemIdx = 2;
+	if (ItemIdx == 0)ItemIdx = 5;
 	ItemIdx--;
 }

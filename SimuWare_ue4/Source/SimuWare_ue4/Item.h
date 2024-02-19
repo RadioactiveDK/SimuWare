@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Item.generated.h"
 
-class UStaticMeshComponent;
+class UMeshComponent;
 
 UCLASS(config = Game)
 class SIMUWARE_UE4_API AItem : public AActor
@@ -14,7 +14,7 @@ class SIMUWARE_UE4_API AItem : public AActor
 	GENERATED_BODY()
 		
 	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* ItemMesh;
+	UMeshComponent* ItemMesh;
 public:	
 	// Sets default values for this actor's properties
 	AItem();
@@ -27,5 +27,5 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UStaticMeshComponent* GetMesh() const { return ItemMesh; }
+	UMeshComponent* GetMesh() const { return ItemMesh; }
 };
