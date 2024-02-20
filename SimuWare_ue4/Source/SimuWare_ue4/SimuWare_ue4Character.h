@@ -89,6 +89,10 @@ public:
 	UPROPERTY(EditAnywhere)
 		TArray<TSubclassOf<class AItem>> Inventory;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 ItemIdx;
+
+
 
 protected:
 	
@@ -147,7 +151,6 @@ protected:
 	bool EnableTouchscreenMovement(UInputComponent* InputComponent);
 
 public:
-	int8 ItemIdx;
 	/** Returns Mesh1P subobject **/
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	/** Returns FirstPersonCameraComponent subobject **/
