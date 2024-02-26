@@ -144,6 +144,9 @@ void ASimuWare_ue4Character::SetupPlayerInputComponent(class UInputComponent* Pl
 	PlayerInputComponent->BindAxis("TurnRate", this, &ASimuWare_ue4Character::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &ASimuWare_ue4Character::LookUpAtRate);
+	// Flying mode
+	PlayerInputComponent->BindAxis("MoveUp", this, &ASimuWare_ue4Character::MoveUp);
+	PlayerInputComponent->BindAction("EnterFlight", IE_Pressed, this, &ASimuWare_ue4Character::EnterFlight);
 }
 
 void ASimuWare_ue4Character::OnFire()
@@ -352,4 +355,83 @@ void ASimuWare_ue4Character::ItemDown()
 {
 	if (ItemIdx == 0)ItemIdx = 5;
 	ItemIdx--;
+}
+void ASimuWare_ue4Character::MoveUp(float Value)
+{
+	if ((GetCharacterMovement()->MovementMode == EMovementMode::MOVE_Flying) && (Value != 0.0f))
+	{
+		const auto upVector = GetActorUpVector();
+
+		AddMovementInput(upVector, Value);
+	}
+}
+void ASimuWare_ue4Character::EnterFlight()
+{
+	switch (GetCharacterMovement()->MovementMode)
+	{
+	case EMovementMode::MOVE_Swimming:
+	    break;
+	case EMovementMode::MOVE_Flying:
+	    GetCharacterMovement()->bOrientRotationToMovement = true;
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+		RequestFlight(false);
+		break;
+	case EMovementMode::MOVE_Falling:
+	case EMovementMode::MOVE_NavWalking:
+	case EMovementMode::MOVE_Walking:
+		GetCharacterMovement()->bCheatFlying = true;
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+		GetCharacterMovement()->bUseControllerDesiredRotation = true;
+		RequestFlight(true);
+		break;
+	default:
+		break;
+	}
+}
+void ASimuWare_ue4Character::ExitFlight()
+{
+	if (GetCharacterMovement()->MovementMode == EMovementMode::MOVE_Flying)
+	{
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+		RequestFlight(false);
+	}
+}
+void ASimuWare_ue4Character::RequestFlight(bool bWantsToFly)
+{
+		switch (GetCharacterMovement()->MovementMode){
+
+		case EMovementMode::MOVE_Swimming:
+			break;
+		case EMovementMode::MOVE_Flying:
+			if (!bWantsToFly)
+			{
+				GetCharacterMovement()->bCheatFlying = false;
+				GetCharacterMovement()->bOrientRotationToMovement = true;
+				GetCharacterMovement()->bUseControllerDesiredRotation = false;
+				GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Falling);
+			}
+			break;
+		case EMovementMode::MOVE_Falling:
+			if (bWantsToFly)
+			{
+				GetCharacterMovement()->bCheatFlying = true;
+				GetCharacterMovement()->bOrientRotationToMovement = false;
+				GetCharacterMovement()->bUseControllerDesiredRotation = true;
+				GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
+			}
+			break;
+		case EMovementMode::MOVE_NavWalking:
+		case EMovementMode::MOVE_Walking:
+			if (bWantsToFly)
+			{
+				GetCharacterMovement()->bCheatFlying = true;
+				GetCharacterMovement()->bOrientRotationToMovement = false;
+				GetCharacterMovement()->bUseControllerDesiredRotation = true;
+				GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
+			}
+			break;
+		default:
+			break;
+		}
 }

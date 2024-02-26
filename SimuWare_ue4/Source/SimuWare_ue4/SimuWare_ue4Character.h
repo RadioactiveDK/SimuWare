@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Character.h"
 #include "SimuWare_ue4Character.generated.h"
 
@@ -155,6 +156,14 @@ public:
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	/** Returns FirstPersonCameraComponent subobject **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+
+// Flying mode 
+protected:
+	// Called when the game starts or when spawned
+	void MoveUp(float Value);
+	void EnterFlight();
+	void ExitFlight();
+	void RequestFlight(bool bWantsToFly);
 
 };
 
