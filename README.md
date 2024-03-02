@@ -81,36 +81,39 @@ SimuWare assumes some basic ideal-physics assumptions, and results might differ 
 
 ## Directory Structure
 
-SimuWare_ue4/
-│
-├── Config/
-│ └── DefaultEngine.ini
-| └── DefaultEditor.ini
-| └── DefaultGame.ini
-| └── DefaultInput.ini
-| └── DefaultEditorPerProjectUserSettings.ini
-│
-├── Content/
-│ ├── FPWeapon/
-│ │ └── MainMap.umap
-│ │
-│ ├── FirstPerson/
-│ │ 
-│ │
-│ ├── FirstPersonCPP/
-│ │ 
-│ │
-│ ├── Geometry/Meshes/
-│ 
-│
-├── Source/
-│ ├── SimuWare_ue4/
-│ └── SimuWare_ue4.Target.cs
-│ └── SimuWare_ue4Editor.Target.cs
-│
-├── .gitattributes
-├── .gitignore
-├── SimuWare_ue4.uproject
+<pre>
+SimuWare_ue4/<br>
+│<br>
+├── Config/<br>
+│   ├── DefaultEngine.ini<br>
+│   ├── DefaultEditor.ini<br>
+│   ├── DefaultGame.ini<br>
+│   ├── DefaultInput.ini<br>
+│   └── DefaultEditorPerProjectUserSettings.ini<br>
+│<br>
+├── Content/<br>
+│   ├── FPWeapon/<br>
+│   │   └── MainMap.umap<br>
+│   │<br>
+│   ├── FirstPerson/<br>
+│   │<br>
+│   │<br>
+│   ├── FirstPersonCPP/<br>
+│   │<br>
+│   │<br>
+│   └── Geometry/<br>
+│       └── Meshes/<br>
+│<br>
+├── Source/<br>
+│   ├── SimuWare_ue4/<br>
+│   │<br>
+│   └── SimuWare_ue4.Target.cs<br>
+│   └── SimuWare_ue4Editor.Target.cs<br>
+│<br>
+├── .gitattributes<br>
+├── .gitignore<br>
+└── SimuWare_ue4.uproject
+</pre>
 
 ## References
 
