@@ -4,17 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Pickup.h"
 #include "Item.generated.h"
 
-class UMeshComponent;
+// class UMeshComponent;
 
-UCLASS(config = Game)
-class SIMUWARE_UE4_API AItem : public AActor
+UCLASS()
+class SIMUWARE_UE4_API AItem : public APickup
 {
 	GENERATED_BODY()
 		
-	UPROPERTY(EditAnywhere)
-	UMeshComponent* ItemMesh;
+	// UPROPERTY(EditAnywhere)
+	// UMeshComponent* ItemMesh;
 public:	
 	// Sets default values for this actor's properties
 	AItem();
@@ -27,5 +28,5 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UMeshComponent* GetMesh() const { return ItemMesh; }
+	// UMeshComponent* GetMesh() const { return ItemMesh; }
 };
