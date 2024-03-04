@@ -12,6 +12,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "MotionControllerComponent.h"
 #include "XRMotionControllerBase.h" // for FXRMotionControllerBase::RightHandSourceId
+#include "DrawDebugHelpers.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -85,6 +86,14 @@ ASimuWare_ue4Character::ASimuWare_ue4Character()
 
 	// Uncomment the following line to turn motion controllers on by default:
 	//bUsingMotionControllers = true;
+
+	HoldingComponent = CreateDefaultSubobject<USceneComponent>(TEXT("HoldingComponent"));
+	// HoldingComponent->RelativeLocation.X = 50.0f;
+	HoldingComponent->SetRelativeLocation(FVector(0.0f, 100.0f, 50.0f));
+	HoldingComponent->SetupAttachment(FP_MuzzleLocation);
+
+	CurrentItem = NULL;
+	bInspecting = false;
 }
 
 void ASimuWare_ue4Character::BeginPlay()
@@ -106,6 +115,60 @@ void ASimuWare_ue4Character::BeginPlay()
 		VR_Gun->SetHiddenInGame(true, true);
 		Mesh1P->SetHiddenInGame(false, true);
 	}
+
+	PitchMax = GetWorld()->GetFirstPlayerController()->PlayerCameraManager->ViewPitchMax;
+	PitchMin = GetWorld()->GetFirstPlayerController()->PlayerCameraManager->ViewPitchMin;
+}
+
+void ASimuWare_ue4Character::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	Start = FirstPersonCameraComponent->GetComponentLocation();
+	ForwardVector = FirstPersonCameraComponent->GetForwardVector();
+	End = ((ForwardVector * 200.f) + Start);
+
+	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
+
+	if(!bHoldingItem)
+	{
+		if(GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, DefaultComponentQueryParams, DefaultResponseParam)) 
+		{
+			if(Hit.GetActor()->GetClass()->IsChildOf(AItem::StaticClass())) 
+			{				
+				CurrentItem = Cast<AItem>(Hit.GetActor());
+			}
+		}
+		else
+		{
+			CurrentItem = NULL;
+		}
+	}
+
+	if(bInspecting)
+	{
+		if(bHoldingItem)
+		{
+			FirstPersonCameraComponent->SetFieldOfView(FMath::Lerp(FirstPersonCameraComponent->FieldOfView, 90.0f, 0.1f));
+			HoldingComponent->SetRelativeLocation(FVector(0.0f, 150.0f, 50.0f));
+			GetWorld()->GetFirstPlayerController()->PlayerCameraManager->ViewPitchMax = 179.9000002f;
+			GetWorld()->GetFirstPlayerController()->PlayerCameraManager->ViewPitchMin = -179.9000002f;
+			CurrentItem->RotateActor();
+		}
+		else
+		{
+			FirstPersonCameraComponent->SetFieldOfView(FMath::Lerp(FirstPersonCameraComponent->FieldOfView, 45.0f, 0.1f));
+		}
+	}
+	else 
+	{
+		FirstPersonCameraComponent->SetFieldOfView(FMath::Lerp(FirstPersonCameraComponent->FieldOfView, 90.0f, 0.1f));
+
+		if(bHoldingItem)
+		{
+			HoldingComponent->SetRelativeLocation(FVector(0.0f, 100.0f, 50.0f));
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -120,12 +183,20 @@ void ASimuWare_ue4Character::SetupPlayerInputComponent(class UInputComponent* Pl
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
+	PlayerInputComponent->BindAction("Grab", IE_Pressed, this, &ASimuWare_ue4Character::OnGrab);
+	PlayerInputComponent->BindAction("Inspect", IE_Pressed, this, &ASimuWare_ue4Character::OnInspect);
+	PlayerInputComponent->BindAction("Inspect", IE_Released, this, &ASimuWare_ue4Character::OnInspectReleased);
+
+
+
 	// Bind fire event
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASimuWare_ue4Character::OnFire);
 
 	PlayerInputComponent->BindAction("ItemUp", IE_Pressed, this, &ASimuWare_ue4Character::ItemUp);
 	PlayerInputComponent->BindAction("ItemDown", IE_Pressed, this, &ASimuWare_ue4Character::ItemDown);
 	PlayerInputComponent->BindAction("DeployItem", IE_Pressed, this, &ASimuWare_ue4Character::DeployItem);
+	PlayerInputComponent->BindAction("DeleteItem", IE_Pressed, this, &ASimuWare_ue4Character::DeleteItem);
+
 
 
 	// Enable touchscreen input
@@ -267,7 +338,7 @@ void ASimuWare_ue4Character::EndTouch(const ETouchIndex::Type FingerIndex, const
 
 void ASimuWare_ue4Character::MoveForward(float Value)
 {
-	if (Value != 0.0f)
+	if (Value != 0.0f )
 	{
 		// add movement in that direction
 		AddMovementInput(GetActorForwardVector(), Value);
@@ -276,7 +347,7 @@ void ASimuWare_ue4Character::MoveForward(float Value)
 
 void ASimuWare_ue4Character::MoveRight(float Value)
 {
-	if (Value != 0.0f)
+	if (Value != 0.0f )
 	{
 		// add movement in that direction
 		AddMovementInput(GetActorRightVector(), Value);
@@ -356,6 +427,7 @@ void ASimuWare_ue4Character::ItemDown()
 	if (ItemIdx == 0)ItemIdx = 5;
 	ItemIdx--;
 }
+
 void ASimuWare_ue4Character::MoveUp(float Value)
 {
 	if ((GetCharacterMovement()->MovementMode == EMovementMode::MOVE_Flying) && (Value != 0.0f))
@@ -434,4 +506,69 @@ void ASimuWare_ue4Character::RequestFlight(bool bWantsToFly)
 		default:
 			break;
 		}
+}
+
+void ASimuWare_ue4Character::OnGrab()
+{
+	if(CurrentItem && !bInspecting)
+	{
+		ToggleItemPickup();
+	}
+}
+
+void ASimuWare_ue4Character::OnInspect()
+{
+	 if(bHoldingItem)
+	 {
+		LastRotation = GetControlRotation();
+		ToggleMovement();
+	 }
+	 else
+	 {
+		bInspecting = true;
+	 }
+}
+
+void ASimuWare_ue4Character::OnInspectReleased()
+{
+	if (bInspecting && bHoldingItem) 
+	{
+		GetController()->SetControlRotation(LastRotation);
+		GetWorld()->GetFirstPlayerController()->PlayerCameraManager->ViewPitchMax = PitchMax;
+		GetWorld()->GetFirstPlayerController()->PlayerCameraManager->ViewPitchMin = PitchMin;
+		ToggleMovement();
+	}
+	else 
+	{
+		bInspecting = false;
+	}
+}
+
+void ASimuWare_ue4Character::ToggleMovement()
+{
+	bInspecting = !bInspecting;
+	FirstPersonCameraComponent->bUsePawnControlRotation = !FirstPersonCameraComponent->bUsePawnControlRotation;
+	bUseControllerRotationYaw = !bUseControllerRotationYaw;
+}
+
+void ASimuWare_ue4Character::ToggleItemPickup()
+{
+	if(CurrentItem)
+	{
+		bHoldingItem = !bHoldingItem;
+		CurrentItem->Pickup();
+
+		if(!bHoldingItem)
+		{
+			CurrentItem = NULL;
+		}
+	}
+}
+
+void ASimuWare_ue4Character::DeleteItem()
+{
+	if(CurrentItem)
+	{
+		CurrentItem->Destroy();
+	}
 }
