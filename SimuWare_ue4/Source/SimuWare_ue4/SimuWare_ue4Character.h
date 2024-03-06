@@ -3,7 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Character.h"
+#include "Pickup.h"
+#include "Item.h"
 #include "SimuWare_ue4Character.generated.h"
 
 class UInputComponent;
@@ -43,6 +46,10 @@ class ASimuWare_ue4Character : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FirstPersonCameraComponent;
 
+	/** Holding Component */
+	UPROPERTY(EditAnywhere)
+	class USceneComponent* HoldingComponent;
+
 	/** Motion controller (right hand) */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UMotionControllerComponent* R_MotionController;
@@ -56,6 +63,8 @@ public:
 
 protected:
 	virtual void BeginPlay();
+
+	virtual void Tick(float DeltaSeconds) override;
 
 public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
@@ -86,10 +95,49 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	uint8 bUsingMotionControllers : 1;
 
+	UPROPERTY(EditAnywhere)
+		TArray<TSubclassOf<class AItem>> Inventory;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 ItemIdx;
+
+	UPROPERTY(EditAnywhere)
+	class AItem* CurrentItem;
+
+	bool bHoldingItem;
+	bool bInspecting;
+
+	float PitchMax;
+	float PitchMin;
+
+	FVector HoldingComp;
+	FRotator LastRotation;
+
+	FVector Start;
+	FVector ForwardVector;
+	FVector End;
+
+	FHitResult Hit;
+	
+	FComponentQueryParams DefaultComponentQueryParams;
+	FCollisionResponseParams DefaultResponseParam;
+	
+
+
+
 protected:
 	
 	/** Fires a projectile. */
 	void OnFire();
+
+	void OnGrab();
+
+	void OnInspect();
+	void OnInspectReleased();
+
+	void ItemUp();
+	void ItemDown();
+	void DeployItem();
 
 	/** Resets HMD orientation and position in VR. */
 	void OnResetVR();
@@ -124,6 +172,10 @@ protected:
 	void EndTouch(const ETouchIndex::Type FingerIndex, const FVector Location);
 	void TouchUpdate(const ETouchIndex::Type FingerIndex, const FVector Location);
 	TouchData	TouchItem;
+
+	void ToggleMovement();
+	void ToggleItemPickup();
+	void DeleteItem();
 	
 protected:
 	// APawn interface
@@ -143,6 +195,14 @@ public:
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	/** Returns FirstPersonCameraComponent subobject **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+
+// Flying mode 
+protected:
+	// Called when the game starts or when spawned
+	void MoveUp(float Value);
+	void EnterFlight();
+	void ExitFlight();
+	void RequestFlight(bool bWantsToFly);
 
 };
 
