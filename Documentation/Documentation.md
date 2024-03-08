@@ -11,5 +11,5 @@ SimuWare is a virtual platform that enables users to assemble physical component
 ## [Specific Requirements](../Documentation/doc2.md)
 
 ## References
-- [Arduino GitHub Repository] (https://github.com/arduino)
-- [Unreal Engine] (https://www.unrealengine.com/en-US)
+- [Arduino GitHub Repository](https://github.com/arduino)
+- [Unreal Engine](https://www.unrealengine.com/en-US)
