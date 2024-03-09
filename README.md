@@ -14,41 +14,7 @@ SimuWare is a virtual platform that enables users to assemble physical component
 
 3. Open the project in Unreal Engine using `.uproject` file.
 
-## Directory Structure
+## Repository Structure
 
-<pre>
-SimuWare_ue4/<br>
-│<br>
-├── Config/<br>
-│   ├── DefaultEngine.ini<br>
-│   ├── DefaultEditor.ini<br>
-│   ├── DefaultGame.ini<br>
-│   ├── DefaultInput.ini<br>
-│   └── DefaultEditorPerProjectUserSettings.ini<br>
-│<br>
-├── Content/<br>
-│   ├── FPWeapon/<br>
-│   │   └── MainMap.umap<br>
-│   │<br>
-│   ├── FirstPerson/<br>
-│   │<br>
-│   │<br>
-│   ├── FirstPersonCPP/<br>
-│   │<br>
-│   │<br>
-│   └── Geometry/<br>
-│       └── Meshes/<br>
-│<br>
-├── Source/<br>
-│   ├── SimuWare_ue4/<br>
-│   │<br>
-│   └── SimuWare_ue4.Target.cs<br>
-│   └── SimuWare_ue4Editor.Target.cs<br>
-│<br>
-├── .gitattributes<br>
-├── .gitignore<br>
-└── SimuWare_ue4.uproject
-</pre>
-
-
-
+- SimuWare_ue4: This folder contains all the major files for the project.
+- Documentation: This folder contains all the documentation for the software. 
