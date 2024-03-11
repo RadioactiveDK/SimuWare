@@ -9,10 +9,10 @@ class SIMUWARE_UE4_API AMotor : public AArduinoComponent
 {
 	GENERATED_BODY()
 		
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(EditAnywhere)
     UStaticMeshComponent* MotorBody;
     
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(EditAnywhere)
     UStaticMeshComponent* Rotor;
     
     UPROPERTY(VisibleAnywhere)
@@ -28,7 +28,5 @@ protected:
 
 public:	
 	// Called every frame
-	
-
-	// UMeshComponent* GetMesh() const { return ItemMesh; }
+	virtual void Tick(float DeltaTime) override;
 };
