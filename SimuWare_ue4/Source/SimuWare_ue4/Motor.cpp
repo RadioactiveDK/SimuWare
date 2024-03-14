@@ -36,9 +36,9 @@ AMotor::AMotor(){
 
     // Set angular drive mode
     TwistConstraint->SetAngularDriveMode(EAngularDriveMode::TwistAndSwing);
-    TwistConstraint->SetAngularSwing1Limit(EAngularConstraintMotion::ACM_Limited, 0.0f);
+    TwistConstraint->SetAngularSwing1Limit(EAngularConstraintMotion::ACM_Limited, 180.0f);
     TwistConstraint->SetAngularSwing2Limit(EAngularConstraintMotion::ACM_Limited, 0.0f);
-    TwistConstraint->SetAngularTwistLimit(EAngularConstraintMotion::ACM_Limited, 180.0f);
+    TwistConstraint->SetAngularTwistLimit(EAngularConstraintMotion::ACM_Limited, 0.0f);
     TwistConstraint->SetDisableCollision(true);
 
     //Damping
