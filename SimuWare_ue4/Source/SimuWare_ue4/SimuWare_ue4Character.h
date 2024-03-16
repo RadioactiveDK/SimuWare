@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "Pickup.h"
 #include "Item.h"
+#include "Arduino.h"
 #include "SimuWare_ue4Character.generated.h"
 
 class UInputComponent;
@@ -104,6 +105,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	class AItem* CurrentItem;
 
+	UPROPERTY(EditAnywhere)
+	class AArduino* Ard;
+
 	bool bHoldingItem;
 	bool bInspecting;
 
@@ -134,6 +138,8 @@ protected:
 
 	void OnInspect();
 	void OnInspectReleased();
+
+	void OpenIDE();
 
 	void ItemUp();
 	void ItemDown();
