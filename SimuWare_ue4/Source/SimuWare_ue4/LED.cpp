@@ -19,7 +19,6 @@ void ALED::BeginPlay()
 	Super::BeginPlay();
 	
     Material = ItemMesh->GetMaterial(0);
-	Input = 0.0f;
 	CreateAndApplyDynamicMaterial(Input);
 }
 
@@ -28,30 +27,17 @@ void ALED::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	Input += 0.1f ;
-	if (Input > 5.0f)
-	{
-		CreateAndApplyDynamicMaterial(Input);
-	}
-	if(Input>9.0f){
-		Input = 0;
-		CreateAndApplyDynamicMaterial(Input);
-	}
+	DynMaterial->SetScalarParameterValue("Emissive_Strength",Input*5);
 }
 
 void ALED::CreateAndApplyDynamicMaterial(float val)
 {
-	UMaterialInstanceDynamic* DynMaterial = UMaterialInstanceDynamic::Create(Material,this);
-	
+	DynMaterial = UMaterialInstanceDynamic::Create(Material,this);
 	if(!DynMaterial) return;
 	
 	ItemMesh->SetMaterial(0,DynMaterial);
 	LED_Mesh->SetMaterial(0,DynMaterial);
 	
 	DynMaterial->SetScalarParameterValue("Emissive_Strength",20);
-
-	if(val<5.0f)
-	DynMaterial->SetVectorParameterValue("LED_Color",FLinearColor::Yellow);
-	else 
-	DynMaterial->SetVectorParameterValue("LED_Color",FLinearColor::Red);
+	DynMaterial->SetVectorParameterValue("LED_Color",FLinearColor::Green);
 }
