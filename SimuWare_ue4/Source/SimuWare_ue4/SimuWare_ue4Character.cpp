@@ -196,6 +196,8 @@ void ASimuWare_ue4Character::SetupPlayerInputComponent(class UInputComponent* Pl
 	PlayerInputComponent->BindAction("ItemDown", IE_Pressed, this, &ASimuWare_ue4Character::ItemDown);
 	PlayerInputComponent->BindAction("DeployItem", IE_Pressed, this, &ASimuWare_ue4Character::DeployItem);
 	PlayerInputComponent->BindAction("DeleteItem", IE_Pressed, this, &ASimuWare_ue4Character::DeleteItem);
+	PlayerInputComponent->BindAxis("ResizeItem", this, &ASimuWare_ue4Character::ResizeItem);
+
 
 
 
@@ -570,5 +572,21 @@ void ASimuWare_ue4Character::DeleteItem()
 	if(CurrentItem)
 	{
 		CurrentItem->Destroy();
+	}
+}
+
+void ASimuWare_ue4Character::ResizeItem(float value)
+{
+	if(value)
+	{
+		if(CurrentItem && bInspecting && bHoldingItem){
+			FVector scale = CurrentItem->GetActorScale3D();
+			if(scale.Size()<3 && value > 0 ){
+				CurrentItem->SetActorScale3D(scale * 1.1f);
+			}
+			if(scale.Size()>0.5f && value < 0 ){
+				CurrentItem->SetActorScale3D(scale * 0.9f);
+			}
+		}
 	}
 }

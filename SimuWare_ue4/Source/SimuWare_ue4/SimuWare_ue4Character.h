@@ -138,6 +138,8 @@ protected:
 	void ItemUp();
 	void ItemDown();
 	void DeployItem();
+	void ResizeItem(float value);
+
 
 	/** Resets HMD orientation and position in VR. */
 	void OnResetVR();
