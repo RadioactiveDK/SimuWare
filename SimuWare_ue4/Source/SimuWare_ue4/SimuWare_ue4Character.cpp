@@ -16,6 +16,7 @@
 #include "MotionControllerComponent.h"
 #include "XRMotionControllerBase.h" // for FXRMotionControllerBase::RightHandSourceId
 #include "DrawDebugHelpers.h"
+#include "TextInput.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -97,6 +98,7 @@ ASimuWare_ue4Character::ASimuWare_ue4Character()
 
 	CurrentItem = NULL;
 	bInspecting = false;
+	bArdItem = false;
 }
 
 void ASimuWare_ue4Character::BeginPlay()
@@ -144,12 +146,14 @@ void ASimuWare_ue4Character::Tick(float DeltaTime)
 			else if(Hit.GetActor()->GetClass()->IsChildOf(AArduino::StaticClass()))
 			{
 				Ard = Cast<AArduino>(Hit.GetActor());
+				bArdItem =true;
 			}
 		}
 		else
 		{
 			CurrentItem = NULL;
 			Ard = NULL;
+			bArdItem = false;
 		}
 	}
 
@@ -533,15 +537,16 @@ void ASimuWare_ue4Character::OpenIDE()
 
 		if(PlayerController)
 		{	
-			OnFire();
-			TSubclassOf<UUserWidget> WidgetClass = textinput::StaticClass();
+			//OnFire();
+			TSubclassOf<UUserWidget> WidgetClass = UTextInput::StaticClass();
 
-			// Create an instance of the widget
-			UUserWidget* WidgetInstance = CreateWidget<UUserWidget>(PlayerController, WidgetClass);
+		   // Create an instance of the widget
+			UTextInput* WidgetInstance = Cast<UTextInput>(CreateWidget(GetWorld(), WidgetClass));
 
 			if (WidgetInstance)
 			{
 				// Add the widget to the viewport
+				OnFire();
 				WidgetInstance->AddToViewport();
 			}
 		}

@@ -108,7 +108,12 @@ public:
 	UPROPERTY(EditAnywhere)
 	class AArduino* Ard;
 
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	bool bArdItem;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	bool bHoldingItem;
+
 	bool bInspecting;
 
 	float PitchMax;
