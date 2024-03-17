@@ -4,12 +4,14 @@
 #include "SimuWare_ue4Projectile.h"
 #include "Item.h"
 #include "LED.h"
+#include "Arduino.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/InputSettings.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
+#include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "MotionControllerComponent.h"
 #include "XRMotionControllerBase.h" // for FXRMotionControllerBase::RightHandSourceId
@@ -96,6 +98,7 @@ ASimuWare_ue4Character::ASimuWare_ue4Character()
 	CurrentItem = NULL;
 	CurrentLED = NULL;
 	bInspecting = false;
+	bArdItem = false;
 }
 
 void ASimuWare_ue4Character::BeginPlay()
@@ -143,12 +146,18 @@ void ASimuWare_ue4Character::Tick(float DeltaTime)
 			else if (Hit.GetActor()->GetClass()->IsChildOf(ALED::StaticClass()))
 			{
 				CurrentLED = Cast<ALED>(Hit.GetActor());
+			else if(Hit.GetActor()->GetClass()->IsChildOf(AArduino::StaticClass()))
+			{
+				Ard = Cast<AArduino>(Hit.GetActor());
+				bArdItem =true;
 			}
 		}
 		else
 		{
 			CurrentItem = NULL;
 			CurrentLED = NULL;
+			Ard = NULL;
+			bArdItem = false;
 		}
 	}
 
@@ -191,6 +200,7 @@ void ASimuWare_ue4Character::SetupPlayerInputComponent(class UInputComponent *Pl
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAction("Grab", IE_Pressed, this, &ASimuWare_ue4Character::OnGrab);
+	PlayerInputComponent->BindAction("OpenIDE", IE_Pressed, this, &ASimuWare_ue4Character::OpenIDE);
 	PlayerInputComponent->BindAction("Inspect", IE_Pressed, this, &ASimuWare_ue4Character::OnInspect);
 	PlayerInputComponent->BindAction("Inspect", IE_Released, this, &ASimuWare_ue4Character::OnInspectReleased);
 
@@ -520,6 +530,14 @@ void ASimuWare_ue4Character::OnGrab()
 	if (CurrentItem && !bInspecting)
 	{
 		ToggleItemPickup();
+	}
+}
+
+void ASimuWare_ue4Character::OpenIDE()
+{
+	if(Ard && !bHoldingItem)
+	{
+		;
 	}
 }
 

@@ -8,6 +8,7 @@
 #include "Pickup.h"
 #include "Item.h"
 #include "LED.h"
+#include "Arduino.h"
 #include "SimuWare_ue4Character.generated.h"
 
 class UInputComponent;
@@ -108,7 +109,15 @@ public:
 	UPROPERTY(EditAnywhere)
 	class ALED* CurrentLED;
 
+  UPROPERTY(EditAnywhere)
+	class AArduino* Ard;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	bool bArdItem;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	bool bHoldingItem;
+
 	bool bInspecting;
 
 	float PitchMax;
@@ -138,6 +147,8 @@ protected:
 
 	void OnInspect();
 	void OnInspectReleased();
+
+	void OpenIDE();
 
 	void ItemUp();
 	void ItemDown();
