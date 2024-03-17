@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "Pickup.h"
 #include "Item.h"
+#include "LED.h"
 #include "Arduino.h"
 #include "SimuWare_ue4Character.generated.h"
 
@@ -106,6 +107,9 @@ public:
 	class AItem* CurrentItem;
 
 	UPROPERTY(EditAnywhere)
+	class ALED* CurrentLED;
+
+  UPROPERTY(EditAnywhere)
 	class AArduino* Ard;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
@@ -207,7 +211,11 @@ public:
 	/** Returns FirstPersonCameraComponent subobject **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
+	void IncreaseInput();
+	void DecreaseInput();
+
 // Flying mode 
+
 protected:
 	// Called when the game starts or when spawned
 	void MoveUp(float Value);
