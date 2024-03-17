@@ -584,8 +584,7 @@ void ASimuWare_ue4Character::IncreaseInput()
 {
 	if(CurrentLED)
 	{
-	OnFire();
-		CurrentLED->Destroy();
+		CurrentLED->Input += 1.0f;
 	}
 }
 
@@ -593,6 +592,6 @@ void ASimuWare_ue4Character::DecreaseInput()
 {
 	if(CurrentLED)
 	{
-		CurrentLED->Decrease();
+		CurrentLED->Input -= 1.0f;
 	}
 }

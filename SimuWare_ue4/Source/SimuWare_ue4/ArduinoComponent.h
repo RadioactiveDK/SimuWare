@@ -16,10 +16,6 @@ public:
     // Additional functions and overrides
     UPROPERTY(EditAnywhere)
     float Input;
-    
-    void Increase();
-
-    void Decrease();
 
     virtual void Tick(float DeltaTime) override;
 };
