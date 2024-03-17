@@ -1,13 +1,29 @@
 
 #include "ArduinoComponent.h"
+#include "Arduino.h"
+#include "EngineUtils.h"
+#include "Components/ActorComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 
 AArduinoComponent::AArduinoComponent()
 {
-   
+   Ard = NULL;
 }
 
+
+// Called when the game starts or when spawned
+void AArduinoComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	for (TActorIterator<AArduino> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+    {
+        // Found an Arduino actor
+        Ard = *ActorItr;
+        break; // We found the Arduino actor, so exit the loop
+    }
+}
 
 void AArduinoComponent::Tick(float DeltaTime)
 {
