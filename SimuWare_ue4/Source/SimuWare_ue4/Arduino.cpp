@@ -15,7 +15,7 @@ AArduino::AArduino()
 	AnalogPinValues.Init(0.0f, 6);	
 	DigitalPinValues.Init(0.0f, 16);
 
-	DigitalPinValues[1] = 0.0f;
+	DigitalPinValues[1] = 3.0f;
 
 	PowerPinValues.Init(0.0f, 7);
 }

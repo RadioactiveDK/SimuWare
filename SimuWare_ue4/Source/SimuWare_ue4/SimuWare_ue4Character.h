@@ -104,7 +104,7 @@ public:
 	int32 ItemIdx;
 
 	UPROPERTY(EditAnywhere)
-	class AItem* CurrentItem;
+	class APickup* CurrentItem;
 
 	UPROPERTY(EditAnywhere)
 	class ALED* CurrentLED;
