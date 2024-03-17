@@ -11,12 +11,10 @@
 #include "GameFramework/InputSettings.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Blueprint/UserWidget.h"
-#include "textinput.h"
 #include "Kismet/GameplayStatics.h"
 #include "MotionControllerComponent.h"
 #include "XRMotionControllerBase.h" // for FXRMotionControllerBase::RightHandSourceId
 #include "DrawDebugHelpers.h"
-#include "TextInput.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -533,23 +531,7 @@ void ASimuWare_ue4Character::OpenIDE()
 {
 	if(Ard && !bHoldingItem)
 	{
-		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-
-		if(PlayerController)
-		{	
-			//OnFire();
-			TSubclassOf<UUserWidget> WidgetClass = UTextInput::StaticClass();
-
-		   // Create an instance of the widget
-			UTextInput* WidgetInstance = Cast<UTextInput>(CreateWidget(GetWorld(), WidgetClass));
-
-			if (WidgetInstance)
-			{
-				// Add the widget to the viewport
-				OnFire();
-				WidgetInstance->AddToViewport();
-			}
-		}
+		;
 	}
 }
 
