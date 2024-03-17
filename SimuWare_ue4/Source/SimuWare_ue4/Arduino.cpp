@@ -12,10 +12,12 @@ AArduino::AArduino()
 	RootComponent = ArduinoMesh;
 
 	// Resize the array to the number of analog pins you want to support
-	AnalogPinValues.Init(0.0f, 6);
+	AnalogPinValues.Init(0.0f, 6);	
 	DigitalPinValues.Init(0.0f, 16);
-	PowerPinValues.Init(0.0f, 7);
 
+	DigitalPinValues[1] = 0.0f;
+
+	PowerPinValues.Init(0.0f, 7);
 }
 
 // Called when the game starts or when spawned
