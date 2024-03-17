@@ -3,6 +3,7 @@
 #include "SimuWare_ue4Character.h"
 #include "SimuWare_ue4Projectile.h"
 #include "Item.h"
+#include "LED.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -30,7 +31,7 @@ ASimuWare_ue4Character::ASimuWare_ue4Character()
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
 
-	// Create a CameraComponent	
+	// Create a CameraComponent
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(-39.56f, 1.75f, 64.f)); // Position the camera
@@ -47,7 +48,7 @@ ASimuWare_ue4Character::ASimuWare_ue4Character()
 
 	// Create a gun mesh component
 	FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
-	FP_Gun->SetOnlyOwnerSee(false);			// otherwise won't be visible in the multiplayer
+	FP_Gun->SetOnlyOwnerSee(false); // otherwise won't be visible in the multiplayer
 	FP_Gun->bCastDynamicShadow = false;
 	FP_Gun->CastShadow = false;
 	// FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint"));
@@ -60,7 +61,7 @@ ASimuWare_ue4Character::ASimuWare_ue4Character()
 	// Default offset from the character location for projectiles to spawn
 	GunOffset = FVector(100.0f, 0.0f, 10.0f);
 
-	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P, FP_Gun, and VR_Gun 
+	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P, FP_Gun, and VR_Gun
 	// are set in the derived blueprint asset named MyCharacter to avoid direct content references in C++.
 
 	// Create VR Controllers.
@@ -73,7 +74,7 @@ ASimuWare_ue4Character::ASimuWare_ue4Character()
 	// Create a gun and attach it to the right-hand VR controller.
 	// Create a gun mesh component
 	VR_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("VR_Gun"));
-	VR_Gun->SetOnlyOwnerSee(false);			// otherwise won't be visible in the multiplayer
+	VR_Gun->SetOnlyOwnerSee(false); // otherwise won't be visible in the multiplayer
 	VR_Gun->bCastDynamicShadow = false;
 	VR_Gun->CastShadow = false;
 	VR_Gun->SetupAttachment(R_MotionController);
@@ -82,10 +83,10 @@ ASimuWare_ue4Character::ASimuWare_ue4Character()
 	VR_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("VR_MuzzleLocation"));
 	VR_MuzzleLocation->SetupAttachment(VR_Gun);
 	VR_MuzzleLocation->SetRelativeLocation(FVector(0.000004, 53.999992, 10.000000));
-	VR_MuzzleLocation->SetRelativeRotation(FRotator(0.0f, 90.0f, 0.0f));		// Counteract the rotation of the VR gun model.
+	VR_MuzzleLocation->SetRelativeRotation(FRotator(0.0f, 90.0f, 0.0f)); // Counteract the rotation of the VR gun model.
 
 	// Uncomment the following line to turn motion controllers on by default:
-	//bUsingMotionControllers = true;
+	// bUsingMotionControllers = true;
 
 	HoldingComponent = CreateDefaultSubobject<USceneComponent>(TEXT("HoldingComponent"));
 	// HoldingComponent->RelativeLocation.X = 50.0f;
@@ -93,15 +94,16 @@ ASimuWare_ue4Character::ASimuWare_ue4Character()
 	HoldingComponent->SetupAttachment(FP_MuzzleLocation);
 
 	CurrentItem = NULL;
+	CurrentLED = NULL;
 	bInspecting = false;
 }
 
 void ASimuWare_ue4Character::BeginPlay()
 {
-	// Call the base class  
+	// Call the base class
 	Super::BeginPlay();
 
-	//Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
+	// Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
 	FP_Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
 
 	// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
@@ -130,24 +132,29 @@ void ASimuWare_ue4Character::Tick(float DeltaTime)
 
 	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
 
-	if(!bHoldingItem)
+	if (!bHoldingItem)
 	{
-		if(GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, DefaultComponentQueryParams, DefaultResponseParam)) 
+		if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, DefaultComponentQueryParams, DefaultResponseParam))
 		{
-			if(Hit.GetActor()->GetClass()->IsChildOf(AItem::StaticClass())) 
-			{				
+			if (Hit.GetActor()->GetClass()->IsChildOf(AItem::StaticClass()))
+			{
 				CurrentItem = Cast<AItem>(Hit.GetActor());
+			}
+			else if (Hit.GetActor()->GetClass()->IsChildOf(ALED::StaticClass()))
+			{
+				CurrentLED = Cast<ALED>(Hit.GetActor());
 			}
 		}
 		else
 		{
 			CurrentItem = NULL;
+			CurrentLED = NULL;
 		}
 	}
 
-	if(bInspecting)
+	if (bInspecting)
 	{
-		if(bHoldingItem)
+		if (bHoldingItem)
 		{
 			FirstPersonCameraComponent->SetFieldOfView(FMath::Lerp(FirstPersonCameraComponent->FieldOfView, 90.0f, 0.1f));
 			HoldingComponent->SetRelativeLocation(FVector(0.0f, 150.0f, 50.0f));
@@ -160,11 +167,11 @@ void ASimuWare_ue4Character::Tick(float DeltaTime)
 			FirstPersonCameraComponent->SetFieldOfView(FMath::Lerp(FirstPersonCameraComponent->FieldOfView, 45.0f, 0.1f));
 		}
 	}
-	else 
+	else
 	{
 		FirstPersonCameraComponent->SetFieldOfView(FMath::Lerp(FirstPersonCameraComponent->FieldOfView, 90.0f, 0.1f));
 
-		if(bHoldingItem)
+		if (bHoldingItem)
 		{
 			HoldingComponent->SetRelativeLocation(FVector(0.0f, 100.0f, 50.0f));
 		}
@@ -174,7 +181,7 @@ void ASimuWare_ue4Character::Tick(float DeltaTime)
 //////////////////////////////////////////////////////////////////////////
 // Input
 
-void ASimuWare_ue4Character::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
+void ASimuWare_ue4Character::SetupPlayerInputComponent(class UInputComponent *PlayerInputComponent)
 {
 	// set up gameplay key bindings
 	check(PlayerInputComponent);
@@ -187,8 +194,6 @@ void ASimuWare_ue4Character::SetupPlayerInputComponent(class UInputComponent* Pl
 	PlayerInputComponent->BindAction("Inspect", IE_Pressed, this, &ASimuWare_ue4Character::OnInspect);
 	PlayerInputComponent->BindAction("Inspect", IE_Released, this, &ASimuWare_ue4Character::OnInspectReleased);
 
-
-
 	// Bind fire event
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASimuWare_ue4Character::OnFire);
 
@@ -197,8 +202,9 @@ void ASimuWare_ue4Character::SetupPlayerInputComponent(class UInputComponent* Pl
 	PlayerInputComponent->BindAction("DeployItem", IE_Pressed, this, &ASimuWare_ue4Character::DeployItem);
 	PlayerInputComponent->BindAction("DeleteItem", IE_Pressed, this, &ASimuWare_ue4Character::DeleteItem);
 
-
-
+	// change input
+	PlayerInputComponent->BindAction("IncreaseInput", IE_Pressed, this, &ASimuWare_ue4Character::IncreaseInput);
+	PlayerInputComponent->BindAction("DecreaseInput", IE_Pressed, this, &ASimuWare_ue4Character::DecreaseInput);
 	// Enable touchscreen input
 	EnableTouchscreenMovement(PlayerInputComponent);
 
@@ -225,7 +231,7 @@ void ASimuWare_ue4Character::OnFire()
 	// try and fire a projectile
 	if (ProjectileClass != nullptr)
 	{
-		UWorld* const World = GetWorld();
+		UWorld *const World = GetWorld();
 		if (World != nullptr)
 		{
 			if (bUsingMotionControllers)
@@ -240,7 +246,7 @@ void ASimuWare_ue4Character::OnFire()
 				// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
 				const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
 
-				//Set Spawn Collision Handling Override
+				// Set Spawn Collision Handling Override
 				FActorSpawnParameters ActorSpawnParams;
 				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
@@ -260,7 +266,7 @@ void ASimuWare_ue4Character::OnFire()
 	if (FireAnimation != nullptr)
 	{
 		// Get the animation object for the arms mesh
-		UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
+		UAnimInstance *AnimInstance = Mesh1P->GetAnimInstance();
 		if (AnimInstance != nullptr)
 		{
 			AnimInstance->Montage_Play(FireAnimation, 1.f);
@@ -298,10 +304,10 @@ void ASimuWare_ue4Character::EndTouch(const ETouchIndex::Type FingerIndex, const
 	TouchItem.bIsPressed = false;
 }
 
-//Commenting this section out to be consistent with FPS BP template.
-//This allows the user to turn without using the right virtual joystick
+// Commenting this section out to be consistent with FPS BP template.
+// This allows the user to turn without using the right virtual joystick
 
-//void ASimuWare_ue4Character::TouchUpdate(const ETouchIndex::Type FingerIndex, const FVector Location)
+// void ASimuWare_ue4Character::TouchUpdate(const ETouchIndex::Type FingerIndex, const FVector Location)
 //{
 //	if ((TouchItem.bIsPressed == true) && (TouchItem.FingerIndex == FingerIndex))
 //	{
@@ -334,11 +340,11 @@ void ASimuWare_ue4Character::EndTouch(const ETouchIndex::Type FingerIndex, const
 //			}
 //		}
 //	}
-//}
+// }
 
 void ASimuWare_ue4Character::MoveForward(float Value)
 {
-	if (Value != 0.0f )
+	if (Value != 0.0f)
 	{
 		// add movement in that direction
 		AddMovementInput(GetActorForwardVector(), Value);
@@ -347,7 +353,7 @@ void ASimuWare_ue4Character::MoveForward(float Value)
 
 void ASimuWare_ue4Character::MoveRight(float Value)
 {
-	if (Value != 0.0f )
+	if (Value != 0.0f)
 	{
 		// add movement in that direction
 		AddMovementInput(GetActorRightVector(), Value);
@@ -366,18 +372,18 @@ void ASimuWare_ue4Character::LookUpAtRate(float Rate)
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
-bool ASimuWare_ue4Character::EnableTouchscreenMovement(class UInputComponent* PlayerInputComponent)
+bool ASimuWare_ue4Character::EnableTouchscreenMovement(class UInputComponent *PlayerInputComponent)
 {
 	if (FPlatformMisc::SupportsTouchInput() || GetDefault<UInputSettings>()->bUseMouseForTouch)
 	{
 		PlayerInputComponent->BindTouch(EInputEvent::IE_Pressed, this, &ASimuWare_ue4Character::BeginTouch);
 		PlayerInputComponent->BindTouch(EInputEvent::IE_Released, this, &ASimuWare_ue4Character::EndTouch);
 
-		//Commenting this out to be more consistent with FPS BP template.
-		//PlayerInputComponent->BindTouch(EInputEvent::IE_Repeat, this, &ASimuWare_ue4Character::TouchUpdate);
+		// Commenting this out to be more consistent with FPS BP template.
+		// PlayerInputComponent->BindTouch(EInputEvent::IE_Repeat, this, &ASimuWare_ue4Character::TouchUpdate);
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -385,7 +391,7 @@ void ASimuWare_ue4Character::DeployItem()
 {
 	if (Inventory[ItemIdx] != nullptr)
 	{
-		UWorld* const World = GetWorld();
+		UWorld *const World = GetWorld();
 		if (World != nullptr)
 		{
 			if (bUsingMotionControllers)
@@ -399,7 +405,7 @@ void ASimuWare_ue4Character::DeployItem()
 				const FRotator SpawnRotation = GetControlRotation();
 				const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
 
-				//Set Spawn Collision Handling Override
+				// Set Spawn Collision Handling Override
 				FActorSpawnParameters ActorSpawnParams;
 				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
@@ -414,7 +420,6 @@ void ASimuWare_ue4Character::DeployItem()
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
 	}
-
 }
 
 void ASimuWare_ue4Character::ItemUp()
@@ -424,7 +429,8 @@ void ASimuWare_ue4Character::ItemUp()
 
 void ASimuWare_ue4Character::ItemDown()
 {
-	if (ItemIdx == 0)ItemIdx = 5;
+	if (ItemIdx == 0)
+		ItemIdx = 5;
 	ItemIdx--;
 }
 
@@ -442,9 +448,9 @@ void ASimuWare_ue4Character::EnterFlight()
 	switch (GetCharacterMovement()->MovementMode)
 	{
 	case EMovementMode::MOVE_Swimming:
-	    break;
+		break;
 	case EMovementMode::MOVE_Flying:
-	    GetCharacterMovement()->bOrientRotationToMovement = true;
+		GetCharacterMovement()->bOrientRotationToMovement = true;
 		GetCharacterMovement()->bUseControllerDesiredRotation = false;
 		RequestFlight(false);
 		break;
@@ -471,46 +477,47 @@ void ASimuWare_ue4Character::ExitFlight()
 }
 void ASimuWare_ue4Character::RequestFlight(bool bWantsToFly)
 {
-		switch (GetCharacterMovement()->MovementMode){
+	switch (GetCharacterMovement()->MovementMode)
+	{
 
-		case EMovementMode::MOVE_Swimming:
-			break;
-		case EMovementMode::MOVE_Flying:
-			if (!bWantsToFly)
-			{
-				GetCharacterMovement()->bCheatFlying = false;
-				GetCharacterMovement()->bOrientRotationToMovement = true;
-				GetCharacterMovement()->bUseControllerDesiredRotation = false;
-				GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Falling);
-			}
-			break;
-		case EMovementMode::MOVE_Falling:
-			if (bWantsToFly)
-			{
-				GetCharacterMovement()->bCheatFlying = true;
-				GetCharacterMovement()->bOrientRotationToMovement = false;
-				GetCharacterMovement()->bUseControllerDesiredRotation = true;
-				GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
-			}
-			break;
-		case EMovementMode::MOVE_NavWalking:
-		case EMovementMode::MOVE_Walking:
-			if (bWantsToFly)
-			{
-				GetCharacterMovement()->bCheatFlying = true;
-				GetCharacterMovement()->bOrientRotationToMovement = false;
-				GetCharacterMovement()->bUseControllerDesiredRotation = true;
-				GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
-			}
-			break;
-		default:
-			break;
+	case EMovementMode::MOVE_Swimming:
+		break;
+	case EMovementMode::MOVE_Flying:
+		if (!bWantsToFly)
+		{
+			GetCharacterMovement()->bCheatFlying = false;
+			GetCharacterMovement()->bOrientRotationToMovement = true;
+			GetCharacterMovement()->bUseControllerDesiredRotation = false;
+			GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Falling);
 		}
+		break;
+	case EMovementMode::MOVE_Falling:
+		if (bWantsToFly)
+		{
+			GetCharacterMovement()->bCheatFlying = true;
+			GetCharacterMovement()->bOrientRotationToMovement = false;
+			GetCharacterMovement()->bUseControllerDesiredRotation = true;
+			GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
+		}
+		break;
+	case EMovementMode::MOVE_NavWalking:
+	case EMovementMode::MOVE_Walking:
+		if (bWantsToFly)
+		{
+			GetCharacterMovement()->bCheatFlying = true;
+			GetCharacterMovement()->bOrientRotationToMovement = false;
+			GetCharacterMovement()->bUseControllerDesiredRotation = true;
+			GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
+		}
+		break;
+	default:
+		break;
+	}
 }
 
 void ASimuWare_ue4Character::OnGrab()
 {
-	if(CurrentItem && !bInspecting)
+	if (CurrentItem && !bInspecting)
 	{
 		ToggleItemPickup();
 	}
@@ -518,27 +525,27 @@ void ASimuWare_ue4Character::OnGrab()
 
 void ASimuWare_ue4Character::OnInspect()
 {
-	 if(bHoldingItem)
-	 {
+	if (bHoldingItem)
+	{
 		LastRotation = GetControlRotation();
 		ToggleMovement();
-	 }
-	 else
-	 {
+	}
+	else
+	{
 		bInspecting = true;
-	 }
+	}
 }
 
 void ASimuWare_ue4Character::OnInspectReleased()
 {
-	if (bInspecting && bHoldingItem) 
+	if (bInspecting && bHoldingItem)
 	{
 		GetController()->SetControlRotation(LastRotation);
 		GetWorld()->GetFirstPlayerController()->PlayerCameraManager->ViewPitchMax = PitchMax;
 		GetWorld()->GetFirstPlayerController()->PlayerCameraManager->ViewPitchMin = PitchMin;
 		ToggleMovement();
 	}
-	else 
+	else
 	{
 		bInspecting = false;
 	}
@@ -553,12 +560,12 @@ void ASimuWare_ue4Character::ToggleMovement()
 
 void ASimuWare_ue4Character::ToggleItemPickup()
 {
-	if(CurrentItem)
+	if (CurrentItem)
 	{
 		bHoldingItem = !bHoldingItem;
 		CurrentItem->Pickup();
 
-		if(!bHoldingItem)
+		if (!bHoldingItem)
 		{
 			CurrentItem = NULL;
 		}
@@ -567,8 +574,25 @@ void ASimuWare_ue4Character::ToggleItemPickup()
 
 void ASimuWare_ue4Character::DeleteItem()
 {
-	if(CurrentItem)
+	if (CurrentItem)
 	{
 		CurrentItem->Destroy();
+	}
+}
+
+void ASimuWare_ue4Character::IncreaseInput()
+{
+	if(CurrentLED)
+	{
+	OnFire();
+		CurrentLED->Destroy();
+	}
+}
+
+void ASimuWare_ue4Character::DecreaseInput()
+{
+	if(CurrentLED)
+	{
+		CurrentLED->Decrease();
 	}
 }
