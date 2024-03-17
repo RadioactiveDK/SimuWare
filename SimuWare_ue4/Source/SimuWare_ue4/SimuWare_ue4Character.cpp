@@ -3,6 +3,7 @@
 #include "SimuWare_ue4Character.h"
 #include "SimuWare_ue4Projectile.h"
 #include "Item.h"
+#include "Pickup.h"
 #include "LED.h"
 #include "Arduino.h"
 #include "Animation/AnimInstance.h"
@@ -139,9 +140,9 @@ void ASimuWare_ue4Character::Tick(float DeltaTime)
 	{
 		if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, DefaultComponentQueryParams, DefaultResponseParam))
 		{
-			if (Hit.GetActor()->GetClass()->IsChildOf(AItem::StaticClass()))
+			if (Hit.GetActor()->GetClass()->IsChildOf(APickup::StaticClass()))
 			{
-				CurrentItem = Cast<AItem>(Hit.GetActor());
+				CurrentItem = Cast<APickup>(Hit.GetActor());
 			}
 			else if (Hit.GetActor()->GetClass()->IsChildOf(ALED::StaticClass()))
 			{

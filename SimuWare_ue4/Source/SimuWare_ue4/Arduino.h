@@ -3,11 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Pickup.h"
 #include "GameFramework/Actor.h"
 #include "Arduino.generated.h"
 
+
 UCLASS()
-class SIMUWARE_UE4_API AArduino : public AActor
+class SIMUWARE_UE4_API AArduino : public APickup
 {
 	GENERATED_BODY()
 	
