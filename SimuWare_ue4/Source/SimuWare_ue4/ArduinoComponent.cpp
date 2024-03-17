@@ -22,3 +22,13 @@ void AArduinoComponent::Tick(float DeltaTime)
 
 
 }
+
+void AArduinoComponent::Increase()
+{
+	Input = Input + 1.0f;
+}
+
+void AArduinoComponent::Decrease()
+{
+	Input = Input - 1.0f;
+}
