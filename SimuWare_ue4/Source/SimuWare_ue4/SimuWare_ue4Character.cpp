@@ -146,6 +146,7 @@ void ASimuWare_ue4Character::Tick(float DeltaTime)
 			else if (Hit.GetActor()->GetClass()->IsChildOf(ALED::StaticClass()))
 			{
 				CurrentLED = Cast<ALED>(Hit.GetActor());
+			}
 			else if(Hit.GetActor()->GetClass()->IsChildOf(AArduino::StaticClass()))
 			{
 				Ard = Cast<AArduino>(Hit.GetActor());
