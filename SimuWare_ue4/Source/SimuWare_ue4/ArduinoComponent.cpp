@@ -37,4 +37,7 @@ void AArduinoComponent::Tick(float DeltaTime)
 	}
 
 
+	Input = Ard->DigitalPinValues[pinNumber2] - Ard->DigitalPinValues[pinNumber1];
+
+
 }

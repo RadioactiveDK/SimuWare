@@ -25,5 +25,11 @@ public:
     UPROPERTY(EditAnywhere)
     class AArduino* Ard;
 
+    UPROPERTY(EditAnywhere)
+	int pinNumber1;
+
+    UPROPERTY(EditAnywhere)
+	int pinNumber2;
+
     virtual void Tick(float DeltaTime) override;
 };
