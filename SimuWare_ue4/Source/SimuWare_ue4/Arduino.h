@@ -17,6 +17,16 @@ public:
 	// Sets default values for this actor's properties
 	AArduino();
 
+	
+	void SetPins();
+	void ResetPin1();
+	void ResetPin2();
+	void ResetPin3();
+	FTimerHandle TimerHandle_SetPins;
+	FTimerHandle TimerHandle_ResetPin1;
+	FTimerHandle TimerHandle_ResetPin2;
+	FTimerHandle TimerHandle_ResetPin3;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -37,5 +47,6 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	TArray<float> PowerPinValues;
+
 
 };

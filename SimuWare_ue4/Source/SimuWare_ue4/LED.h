@@ -29,7 +29,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* LED_Mesh;
 
+
 	UMaterialInterface* Material;
 	UMaterialInstanceDynamic* DynMaterial;
     void CreateAndApplyDynamicMaterial(float val);
+
 };
