@@ -29,7 +29,7 @@ void ALED::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// Input = Ard->DigitalPinValues[pinNumber2] - Ard->DigitalPinValues[pinNumber1];
+	Input = Ard->DigitalPinValues[pinNumber2] - Ard->DigitalPinValues[pinNumber1];
 	
 	DynMaterial->SetScalarParameterValue("Emissive_Strength",Input*5);
 }
