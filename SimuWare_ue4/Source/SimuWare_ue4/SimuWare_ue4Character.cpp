@@ -624,6 +624,7 @@ void ASimuWare_ue4Character::Resize_4x()
 
 void ASimuWare_ue4Character::IncreaseInput()
 {
+	OnFire();
 	if(CurrentLED)
 	{
 		CurrentLED->Input += 1.0f;

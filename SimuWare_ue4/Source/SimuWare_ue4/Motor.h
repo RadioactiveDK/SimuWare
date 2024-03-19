@@ -9,8 +9,8 @@ class SIMUWARE_UE4_API AMotor : public AArduinoComponent
 {
 	GENERATED_BODY()
 		
-    UPROPERTY(EditAnywhere)
-    UStaticMeshComponent* MotorBody;
+    // UPROPERTY(EditAnywhere)
+    // UStaticMeshComponent* MotorBody;
     
     UPROPERTY(EditAnywhere)
     UStaticMeshComponent* Rotor;

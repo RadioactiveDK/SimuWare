@@ -9,8 +9,6 @@ AArduino::AArduino()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	ArduinoMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ArduinoMesh"));
-	RootComponent = ArduinoMesh;
 
 	// Resize the array to the number of analog pins you want to support
 	AnalogPinValues.Init(0.0f, 6);	
