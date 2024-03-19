@@ -144,11 +144,11 @@ void ASimuWare_ue4Character::Tick(float DeltaTime)
 			{
 				CurrentItem = Cast<APickup>(Hit.GetActor());
 			}
-			else if (Hit.GetActor()->GetClass()->IsChildOf(ALED::StaticClass()))
+			if (Hit.GetActor()->GetClass()->IsChildOf(ALED::StaticClass()))
 			{
 				CurrentLED = Cast<ALED>(Hit.GetActor());
 			}
-			else if(Hit.GetActor()->GetClass()->IsChildOf(AArduino::StaticClass()))
+			if(Hit.GetActor()->GetClass()->IsChildOf(AArduino::StaticClass()))
 			{
 				Ard = Cast<AArduino>(Hit.GetActor());
 				bArdItem =true;
@@ -624,7 +624,6 @@ void ASimuWare_ue4Character::Resize_4x()
 
 void ASimuWare_ue4Character::IncreaseInput()
 {
-	OnFire();
 	if(CurrentLED)
 	{
 		CurrentLED->Input += 1.0f;
