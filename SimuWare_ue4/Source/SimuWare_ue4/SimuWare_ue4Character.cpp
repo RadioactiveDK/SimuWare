@@ -213,6 +213,9 @@ void ASimuWare_ue4Character::SetupPlayerInputComponent(class UInputComponent *Pl
 	PlayerInputComponent->BindAction("ItemDown", IE_Pressed, this, &ASimuWare_ue4Character::ItemDown);
 	PlayerInputComponent->BindAction("DeployItem", IE_Pressed, this, &ASimuWare_ue4Character::DeployItem);
 	PlayerInputComponent->BindAction("DeleteItem", IE_Pressed, this, &ASimuWare_ue4Character::DeleteItem);
+	PlayerInputComponent->BindAction("Resize_1x", IE_Pressed, this, &ASimuWare_ue4Character::Resize_1x);
+	PlayerInputComponent->BindAction("Resize_2x", IE_Pressed, this, &ASimuWare_ue4Character::Resize_2x);
+	PlayerInputComponent->BindAction("Resize_4x", IE_Pressed, this, &ASimuWare_ue4Character::Resize_4x);
 
 	// change input
 	PlayerInputComponent->BindAction("IncreaseInput", IE_Pressed, this, &ASimuWare_ue4Character::IncreaseInput);
@@ -436,13 +439,12 @@ void ASimuWare_ue4Character::DeployItem()
 
 void ASimuWare_ue4Character::ItemUp()
 {
-	ItemIdx = (ItemIdx + 1) % 5;
+	ItemIdx = (ItemIdx + 1) % 8;
 }
 
 void ASimuWare_ue4Character::ItemDown()
 {
-	if (ItemIdx == 0)
-		ItemIdx = 5;
+	if (ItemIdx == 0)ItemIdx = 8;
 	ItemIdx--;
 }
 
@@ -598,6 +600,26 @@ void ASimuWare_ue4Character::DeleteItem()
 	{
 		CurrentItem->Destroy();
 	}
+}
+void ASimuWare_ue4Character::Resize_1x()
+{
+		if(CurrentItem && bInspecting && bHoldingItem){
+				CurrentItem->SetActorScale3D(FVector(0.5,0.5,0.5));		
+	}
+}
+
+void ASimuWare_ue4Character::Resize_2x()
+{
+		if(CurrentItem && bInspecting && bHoldingItem){
+				CurrentItem->SetActorScale3D(FVector(1,1,1));			
+		}
+}
+
+void ASimuWare_ue4Character::Resize_4x()
+{
+		if(CurrentItem && bInspecting && bHoldingItem){
+				CurrentItem->SetActorScale3D(FVector(1.5,1.5,1.5));			
+		}
 }
 
 void ASimuWare_ue4Character::IncreaseInput()
