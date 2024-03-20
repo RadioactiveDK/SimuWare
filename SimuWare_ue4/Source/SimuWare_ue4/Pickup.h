@@ -30,7 +30,7 @@ public:
 	// UPROPERTY(EditAnywhere)
 	// UStaticMeshComponent* ItemMesh;
 	UPROPERTY(EditAnywhere)
-	UMeshComponent* ItemMesh;
+	UStaticMeshComponent* ItemMesh;
 
 	UPROPERTY(EditAnywhere)
 	USceneComponent* HoldingComp;

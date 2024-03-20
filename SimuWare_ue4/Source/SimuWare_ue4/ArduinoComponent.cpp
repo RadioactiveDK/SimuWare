@@ -19,25 +19,14 @@ void AArduinoComponent::BeginPlay()
 	
 	for (TActorIterator<AArduino> ActorItr(GetWorld()); ActorItr; ++ActorItr)
     {
-        // Found an Arduino actor
         Ard = *ActorItr;
-        break; // We found the Arduino actor, so exit the loop
+        break;
     }
 }
 
 void AArduinoComponent::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	// Clamp Input value between 0 and 10
-    Input = FMath::Clamp(Input, 0.0f, 10.0f);
 	
-	if(bHolding && HoldingComp)
-	{
-		SetActorLocationAndRotation(HoldingComp->GetComponentLocation(), HoldingComp->GetComponentRotation());
-	}
-
-
-	Input = Ard->DigitalPinValues[pinNumber2] - Ard->DigitalPinValues[pinNumber1];
-
-
+    Input = FMath::Clamp(Input, 0.0f, 10.0f);
 }

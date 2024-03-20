@@ -8,11 +8,10 @@ AMotor::AMotor(){
     
     Input = 5.0f;
 
-    // MotorBody component and its properties
-    MotorBody = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MotorBody"));
-    MotorBody->SetupAttachment(ItemMesh);
+    // MotorBody = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MotorBody"));
+    // MotorBody->SetupAttachment(ItemMesh);
     const ConstructorHelpers::FObjectFinder<UStaticMesh> MeshObj(TEXT("StaticMesh'/Engine/BasicShapes/Cylinder.Cylinder'"));
-    MotorBody->SetStaticMesh(MeshObj.Object);
+    ItemMesh->SetStaticMesh(MeshObj.Object);
 
     
     // Create Rotor component and set its properties
@@ -32,7 +31,7 @@ AMotor::AMotor(){
     
     //physics simulation
     Rotor->SetSimulatePhysics(true);
-    MotorBody->SetSimulatePhysics(false);
+    ItemMesh->SetSimulatePhysics(false);
 
     // Set angular drive mode
     TwistConstraint->SetAngularDriveMode(EAngularDriveMode::TwistAndSwing);

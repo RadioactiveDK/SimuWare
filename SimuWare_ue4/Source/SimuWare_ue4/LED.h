@@ -26,9 +26,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* LED_Mesh;
-
 
 	UMaterialInterface* Material;
 	UMaterialInstanceDynamic* DynMaterial;
