@@ -1,5 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
+#include "Kismet/GameplayStatics.h"
 #include "SimuWare_ue4Character.h"
 #include "SimuWare_ue4Projectile.h"
 #include "Item.h"
@@ -124,6 +125,8 @@ void ASimuWare_ue4Character::BeginPlay()
 
 	PitchMax = GetWorld()->GetFirstPlayerController()->PlayerCameraManager->ViewPitchMax;
 	PitchMin = GetWorld()->GetFirstPlayerController()->PlayerCameraManager->ViewPitchMin;
+
+	CreatePreviewMesh();
 }
 
 void ASimuWare_ue4Character::Tick(float DeltaTime)
@@ -187,6 +190,8 @@ void ASimuWare_ue4Character::Tick(float DeltaTime)
 			HoldingComponent->SetRelativeLocation(FVector(0.0f, 100.0f, 50.0f));
 		}
 	}
+	const FRotator SpawnRotation = GetControlRotation();
+	UpdatePreviewMesh(((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset), 100.0f);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -402,30 +407,154 @@ bool ASimuWare_ue4Character::EnableTouchscreenMovement(class UInputComponent *Pl
 	return false;
 }
 
+
+// Function to update the preview mesh's position and size based on the target location and mesh size
+void ASimuWare_ue4Character::UpdatePreviewMesh(const FVector& TargetLocation, float GridSize)
+{
+    if (PreviewMesh)
+    {
+        // Calculate the grid position for the target location
+        int32 GridX = FMath::RoundToInt(TargetLocation.X / GridSize);
+        int32 GridY = FMath::RoundToInt(TargetLocation.Y / GridSize);
+        int32 GridZ = FMath::RoundToInt(TargetLocation.Z / GridSize);
+
+        // Calculate the center of the corresponding grid cell
+        FVector PreviewLocation = FVector(GridX * GridSize,
+                                          GridY * GridSize,
+                                          GridZ * GridSize);
+
+        // Set the preview mesh's position
+        PreviewMesh->SetActorLocation(PreviewLocation);
+    }
+}
+void ASimuWare_ue4Character::CreatePreviewMesh()
+{
+    UWorld* const World = GetWorld();
+    if (World && Inventory[ItemIdx] != nullptr)
+    {
+		
+			// Set Spawn Collision Handling Override
+			const FRotator SpawnRotation = GetControlRotation();
+			FActorSpawnParameters ActorSpawnParams;
+			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+            // Spawn an instance of the inventory item
+            PreviewMesh =  World->SpawnActor<AItem>(Inventory[ItemIdx],((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset), FRotator(0.0f,0.0f,0.0f), ActorSpawnParams);
+            if (PreviewMesh)
+            {
+                // Access the ItemMesh from the temporary instance
+                UStaticMeshComponent* ItemMesh = PreviewMesh->ItemMesh;
+                if (ItemMesh)
+                {
+                    // Access the StaticMesh from the ItemMesh
+                    UStaticMesh* StaticMesh = ItemMesh->GetStaticMesh();
+                    if (StaticMesh)
+                    {
+                        // Create the preview mesh component
+                        // PreviewMesh = NewObject<UStaticMeshComponent>(this);
+                        // if (PreviewMesh)
+                        // {
+                        //     PreviewMesh->SetStaticMesh(StaticMesh);
+                        //     PreviewMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+                        //     PreviewMesh->SetVisibility(true);
+                        //     PreviewMesh->RegisterComponent();
+                        // }
+                    }
+                }
+            }
+        }
+}
+void ASimuWare_ue4Character::RemovePreviewMesh()
+{
+    if (PreviewMesh)
+    {
+        PreviewMesh->Destroy();
+        PreviewMesh = nullptr;
+    }
+}
+
 void ASimuWare_ue4Character::DeployItem()
 {
 	if (Inventory[ItemIdx] != nullptr)
 	{
 		UWorld *const World = GetWorld();
+
+		ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+		ASimuWare_ue4Character* FirstPersonCharacter = Cast<ASimuWare_ue4Character>(PlayerCharacter);
+		FVector TargetLocation = FirstPersonCharacter->VR_MuzzleLocation->GetComponentLocation();
+		float GridSize = 100.0f;
+
 		if (World != nullptr)
 		{
 			if (bUsingMotionControllers)
 			{
 				const FRotator SpawnRotation = VR_MuzzleLocation->GetComponentRotation();
-				const FVector SpawnLocation = VR_MuzzleLocation->GetComponentLocation();
-				World->SpawnActor<AItem>(Inventory[ItemIdx], SpawnLocation, SpawnRotation);
+				int32 GridX = FMath::RoundToInt(TargetLocation.X / GridSize);
+                int32 GridY = FMath::RoundToInt(TargetLocation.Y / GridSize);
+                int32 GridZ = FMath::RoundToInt(TargetLocation.Z / GridSize);
+
+                // Calculate the center of the corresponding grid cell
+                FVector SpawnLocation = FVector(GridX * GridSize,
+                                             GridY * GridSize ,
+                                             GridZ * GridSize );
+				RemovePreviewMesh();
+				AItem* SpawnedItem = World->SpawnActor<AItem>(Inventory[ItemIdx], SpawnLocation, SpawnRotation);
+				if(SpawnedItem){
+					UStaticMeshComponent* ItemMesh = SpawnedItem->ItemMesh;
+				    if (ItemMesh)
+				    {
+				    	UStaticMesh* StaticMesh = ItemMesh->GetStaticMesh();
+				    	if (StaticMesh)
+				    	{
+				    	}
+				    }
+				}
 			}
 			else
 			{
 				const FRotator SpawnRotation = GetControlRotation();
-				const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
 
+			    TargetLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
+
+				int32 GridX = FMath::RoundToInt(TargetLocation.X / GridSize);
+                int32 GridY = FMath::RoundToInt(TargetLocation.Y / GridSize);
+                int32 GridZ = FMath::RoundToInt(TargetLocation.Z / GridSize);
+
+                // Calculate the center of the corresponding grid cell
+                FVector SpawnLocation = FVector(GridX * GridSize ,
+                                             GridY * GridSize,
+                                             GridZ * GridSize);
 				// Set Spawn Collision Handling Override
 				FActorSpawnParameters ActorSpawnParams;
 				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
 				// spawn the projectile at the muzzle
-				World->SpawnActor<AItem>(Inventory[ItemIdx], SpawnLocation, SpawnRotation, ActorSpawnParams);
+				RemovePreviewMesh();
+				AItem* SpawnedItem = World->SpawnActor<AItem>(Inventory[ItemIdx], SpawnLocation, FRotator(0.0f,0.0f,0.0f), ActorSpawnParams);
+				
+				if(SpawnedItem)
+				{
+					UStaticMeshComponent* ItemMesh = SpawnedItem->ItemMesh;
+				    if (ItemMesh)
+				    {
+				    	UStaticMesh* StaticMesh = ItemMesh->GetStaticMesh();
+				    	if (StaticMesh)
+				    	{
+				    		FBoxSphereBounds Bounds = StaticMesh->GetBoundingBox();
+				    		 //  accessing the bounding box of the mesh
+				    		FVector Origin = Bounds.Origin;
+				    		FVector BoxExtent = Bounds.BoxExtent;
+				    		// Get the size of the mesh
+				    		FVector Extent = Bounds.GetBox().GetExtent();
+				    		GridSize= Extent.X * 2.0f; // Multiply by 2 to get the full size
+				    		GridX = FMath::RoundToFloat(TargetLocation.X / GridSize) * GridSize;
+				    		GridSize = Extent.Y * 2.0f;
+				    		GridY = FMath::RoundToFloat(TargetLocation.Y / GridSize) * GridSize;
+				    		GridSize = Extent.Z * 2.0f;
+				    		GridZ = FMath::RoundToFloat(TargetLocation.Z / GridSize) * GridSize;
+				    		SpawnedItem->SetActorLocation(FVector(GridX, GridY, GridZ));
+				    	}
+				    }
+				}
 			}
 		}
 	}
