@@ -14,14 +14,14 @@ AArduino::AArduino()
 	AnalogPinValues.Init(0.0f, 6);	
 	DigitalPinValues.Init(0.0f, 16);
 	PowerPinValues.Init(0.0f, 7);
+	isOn = false;
 }
 
 // Called when the game starts or when spawned
 void AArduino::BeginPlay()
 {
 	Super::BeginPlay();
-	GetWorldTimerManager().SetTimer(TimerHandle_SetPins, this, &AArduino::SetPins, 3.0f,true,0.0f);
-	
+	ToggleOnOff();
 }
 
 // Called every frame
@@ -32,12 +32,9 @@ void AArduino::Tick(float DeltaTime)
 
 void AArduino::SetPins()
 {
-
     DigitalPinValues[1] = 3.0f;
     GetWorldTimerManager().SetTimer(TimerHandle_ResetPin1, this, &AArduino::ResetPin1,1.0f, false);
-
 }
-
 void AArduino::ResetPin1()
 {
     DigitalPinValues[1] = 0.0f;
@@ -55,3 +52,33 @@ void AArduino::ResetPin3()
     GetWorldTimerManager().SetTimer(TimerHandle_ResetPin2, this, &AArduino::ResetPin2,1.0f, false);
 }
 
+void AArduino::ToggleOnOff()
+{
+	if(isOn)
+	{
+		isOn = false;
+		UMaterialInstanceDynamic* DynMaterial = UMaterialInstanceDynamic::Create(ItemMesh->GetMaterial(0),this);
+		if(!DynMaterial) return;
+		
+		ItemMesh->SetMaterial(0,DynMaterial);
+		
+		DynMaterial->SetScalarParameterValue("Emissive_Strength",0);
+		DynMaterial->SetVectorParameterValue("LED_Color",FLinearColor::Green);
+	}
+	else
+	{
+		isOn = true;
+		UMaterialInstanceDynamic* DynMaterial = UMaterialInstanceDynamic::Create(ItemMesh->GetMaterial(0),this);
+		if(!DynMaterial) return;
+		
+		ItemMesh->SetMaterial(0,DynMaterial);
+		
+		DynMaterial->SetScalarParameterValue("Emissive_Strength",20);
+		DynMaterial->SetVectorParameterValue("LED_Color",FLinearColor::Green);
+
+
+
+		
+		GetWorldTimerManager().SetTimer(TimerHandle_SetPins, this, &AArduino::SetPins, 3.0f,true,0.0f);
+	}
+}

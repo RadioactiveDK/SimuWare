@@ -38,6 +38,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	UMeshComponent* ArduinoMesh;
 
+	UPROPERTY(EditAnywhere)
+	bool isOn;
+
 	// Array to store analog pin values
 	UPROPERTY(EditAnywhere)
 	TArray<float> AnalogPinValues;
@@ -48,5 +51,6 @@ public:
 	UPROPERTY(EditAnywhere)
 	TArray<float> PowerPinValues;
 
+	void ToggleOnOff();
 
 };
