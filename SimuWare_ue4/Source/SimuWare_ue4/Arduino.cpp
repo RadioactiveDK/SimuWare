@@ -28,11 +28,6 @@ void AArduino::BeginPlay()
 void AArduino::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	if(isOn)
-	{
-		GetWorldTimerManager().SetTimer(TimerHandle_SetPins, this, &AArduino::SetPins, 3.0f,true,0.0f);
-	}
 }
 
 void AArduino::SetPins()
@@ -40,7 +35,6 @@ void AArduino::SetPins()
     DigitalPinValues[1] = 3.0f;
     GetWorldTimerManager().SetTimer(TimerHandle_ResetPin1, this, &AArduino::ResetPin1,1.0f, false);
 }
-
 void AArduino::ResetPin1()
 {
     DigitalPinValues[1] = 0.0f;
@@ -81,5 +75,10 @@ void AArduino::ToggleOnOff()
 		
 		DynMaterial->SetScalarParameterValue("Emissive_Strength",20);
 		DynMaterial->SetVectorParameterValue("LED_Color",FLinearColor::Green);
+
+
+
+		
+		GetWorldTimerManager().SetTimer(TimerHandle_SetPins, this, &AArduino::SetPins, 3.0f,true,0.0f);
 	}
 }
