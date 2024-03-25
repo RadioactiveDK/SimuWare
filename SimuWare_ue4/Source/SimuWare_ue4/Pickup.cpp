@@ -4,6 +4,7 @@
 #include "Pickup.h"
 
 #include "GameFramework/Character.h"
+#include "SimuWare_ue4Character.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -50,10 +51,30 @@ void APickup::BeginPlay()
 void APickup::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	bool isFlying = false;
+	ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	ASimuWare_ue4Character* SimuWareCharacter = Cast<ASimuWare_ue4Character>(PlayerCharacter);
 
+    if (SimuWareCharacter)
+    {
+        isFlying = SimuWareCharacter->bIsflying;
+    }
 	if(bHolding && HoldingComp)
 	{
-		SetActorLocationAndRotation(HoldingComp->GetComponentLocation(), HoldingComp->GetComponentRotation());
+		FVector TargetLocation = HoldingComp->GetComponentLocation();
+		if(isFlying==false){
+			SetActorLocationAndRotation(TargetLocation, HoldingComp->GetComponentRotation());
+			return;
+		}
+		int32 GridX = FMath::GridSnap(TargetLocation.X ,100.0f);
+        int32 GridY = FMath::GridSnap(TargetLocation.Y ,100.0f);
+        int32 GridZ = FMath::GridSnap(TargetLocation.Z ,100.0f);
+
+        FVector Location = FVector(GridX,
+                                        GridY,
+                                        GridZ);
+		
+		SetActorLocationAndRotation(Location, FRotator::ZeroRotator);
 	}
 
 }

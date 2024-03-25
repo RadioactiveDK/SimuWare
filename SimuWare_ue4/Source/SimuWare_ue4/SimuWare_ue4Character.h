@@ -124,6 +124,7 @@ public:
 	AItem* PreviewMesh;
 
 	bool bInspecting;
+	bool bIsflying;
 
 	float PitchMax;
 	float PitchMin;

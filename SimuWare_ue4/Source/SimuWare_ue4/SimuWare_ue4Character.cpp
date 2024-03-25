@@ -102,6 +102,7 @@ ASimuWare_ue4Character::ASimuWare_ue4Character()
 	CurrentLED = NULL;
 	bInspecting = false;
 	bArdItem = false;
+	bIsflying = false;
 }
 
 void ASimuWare_ue4Character::BeginPlay()
@@ -496,11 +497,19 @@ void ASimuWare_ue4Character::DeployItem()
                                              GridY,
                                              GridZ);
 				RemovePreviewMesh();
-				// Set Spawn Collision Handling Override
-				FActorSpawnParameters ActorSpawnParams;
+		
+				if(bIsflying==false){
+					FActorSpawnParameters ActorSpawnParams;
+					ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+					// Spawn the item
+					AItem* SpawnedItem = World->SpawnActor<AItem>(Inventory[ItemIdx], TargetLocation, FRotator::ZeroRotator, ActorSpawnParams);
+					return;
+				}
 				
-				RemovePreviewMesh();
+
 				// Set up collision parameters
+				FActorSpawnParameters ActorSpawnParams;
+
                 FCollisionQueryParams CollisionParams;
                 CollisionParams.AddIgnoredActor(this); // Ignore the character itself
 
@@ -532,10 +541,21 @@ void ASimuWare_ue4Character::DeployItem()
                 FVector SpawnLocation = FVector(GridX,
                                              GridY,
                                              GridZ);
+
+				if(bIsflying==false){
+					FActorSpawnParameters ActorSpawnParams;
+					ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+					// Spawn the item
+					AItem* SpawnedItem = World->SpawnActor<AItem>(Inventory[ItemIdx], TargetLocation, FRotator::ZeroRotator, ActorSpawnParams);
+					return;
+				}
+
+				
 				// Set Spawn Collision Handling Override
 				FActorSpawnParameters ActorSpawnParams;
 				
 				RemovePreviewMesh();
+				
 				// Set up collision parameters
                 FCollisionQueryParams CollisionParams;
                 CollisionParams.AddIgnoredActor(this); // Ignore the character itself
@@ -655,6 +675,7 @@ void ASimuWare_ue4Character::RequestFlight(bool bWantsToFly)
 			GetCharacterMovement()->bOrientRotationToMovement = true;
 			GetCharacterMovement()->bUseControllerDesiredRotation = false;
 			GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Falling);
+			bIsflying = false;
 		}
 		break;
 	case EMovementMode::MOVE_Falling:
@@ -674,6 +695,7 @@ void ASimuWare_ue4Character::RequestFlight(bool bWantsToFly)
 			GetCharacterMovement()->bOrientRotationToMovement = false;
 			GetCharacterMovement()->bUseControllerDesiredRotation = true;
 			GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
+			bIsflying = true;
 		}
 		break;
 	default:
