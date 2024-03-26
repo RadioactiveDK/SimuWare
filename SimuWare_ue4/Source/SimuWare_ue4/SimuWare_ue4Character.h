@@ -86,10 +86,22 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	uint8 bUsingMotionControllers : 1;
 
+	UPROPERTY(EditAnywhere)
+		TArray<TSubclassOf<class AItem>> Inventory;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 ItemIdx;
+
+
+
 protected:
 	
 	/** Fires a projectile. */
 	void OnFire();
+
+	void ItemUp();
+	void ItemDown();
+	void DeployItem();
 
 	/** Resets HMD orientation and position in VR. */
 	void OnResetVR();
