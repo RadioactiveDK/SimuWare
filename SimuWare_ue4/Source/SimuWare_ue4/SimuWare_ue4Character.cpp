@@ -95,6 +95,7 @@ ASimuWare_ue4Character::ASimuWare_ue4Character()
 	HoldingComponent->SetRelativeLocation(FVector(0.0f, 100.0f, 50.0f));
 	HoldingComponent->SetupAttachment(FP_MuzzleLocation);
 
+	PotentiometerItem = NULL;
 	CurrentItem = NULL;
 	bInspecting = false;
 	bIsPotentiometer=false;
@@ -155,6 +156,8 @@ void ASimuWare_ue4Character::Tick(float DeltaTime)
         {
             // Show potentiometer widget
 			bIsPotentiometer=true;
+			PotentiometerItem = Cast<APotentiometer>(Hit.GetActor());
+
 			// if (!bIsPotentiometerWidget)
         	// {
             // // Add the PotentiometerWidget to the viewport
@@ -171,6 +174,7 @@ void ASimuWare_ue4Character::Tick(float DeltaTime)
     else
     {
 		bIsPotentiometer=false;
+		PotentiometerItem = NULL;
         
 		// if (bIsPotentiometerWidget)
         // {

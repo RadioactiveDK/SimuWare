@@ -109,6 +109,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsPotentiometerWidget;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class APotentiometer* PotentiometerItem;
+
 	UPROPERTY(EditAnywhere)
 	class AItem* CurrentItem;
 

@@ -14,7 +14,7 @@ public:
     AArduinoComponent();
 
     // Additional functions and overrides
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere,BlueprintReadWrite)
     float Input;
     
     virtual void Tick(float DeltaTime) override;
