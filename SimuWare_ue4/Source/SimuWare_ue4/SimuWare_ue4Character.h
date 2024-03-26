@@ -98,7 +98,7 @@ public:
 	uint8 bUsingMotionControllers : 1;
 
 	UPROPERTY(EditAnywhere)
-		TArray<TSubclassOf<class AItem>> Inventory;
+	TArray<TSubclassOf<class AItem>> Inventory;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 ItemIdx;
@@ -109,7 +109,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	class ALED* CurrentLED;
 
-  UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere)
 	class AArduino* Ard;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
@@ -118,7 +118,13 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	bool bHoldingItem;
 
+	
+	// Declare a member variable to hold the reference to the preview mesh component
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category=Preview)
+	AItem* PreviewMesh;
+
 	bool bInspecting;
+	bool bIsflying;
 
 	float PitchMax;
 	float PitchMin;
@@ -226,6 +232,9 @@ protected:
 	void EnterFlight();
 	void ExitFlight();
 	void RequestFlight(bool bWantsToFly);
+	void CreatePreviewMesh();
+    void UpdatePreviewMesh(const FVector& TargetLocation, float GridSize);
+    void RemovePreviewMesh();
 
 };
 
