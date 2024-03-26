@@ -13,9 +13,10 @@ class SIMUWARE_UE4_API UPotentiometerWidget : public UUserWidget
 
 public:
     virtual void NativeConstruct() override;
+    UPotentiometerWidget(const FObjectInitializer& ObjectInitializer);
 
-protected:
-    UPROPERTY(meta = (BindWidget))
+public:
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (BindWidget))
     USlider* PotentiometerSlider;
 
     UFUNCTION()

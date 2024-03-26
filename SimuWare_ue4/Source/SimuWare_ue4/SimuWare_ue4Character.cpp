@@ -9,6 +9,9 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/InputSettings.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
+#include "Potentiometer.h"
+#include "PotentiometerWidget.h"
+#include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "MotionControllerComponent.h"
 #include "XRMotionControllerBase.h" // for FXRMotionControllerBase::RightHandSourceId
@@ -94,6 +97,14 @@ ASimuWare_ue4Character::ASimuWare_ue4Character()
 
 	CurrentItem = NULL;
 	bInspecting = false;
+	bIsPotentiometer=false;
+	bIsPotentiometerWidget = false;
+
+
+
+	// PotentiometerWidget = nullptr;
+	// PotentiometerWidgetClass = nullptr;
+
 }
 
 void ASimuWare_ue4Character::BeginPlay()
@@ -118,6 +129,14 @@ void ASimuWare_ue4Character::BeginPlay()
 
 	PitchMax = GetWorld()->GetFirstPlayerController()->PlayerCameraManager->ViewPitchMax;
 	PitchMin = GetWorld()->GetFirstPlayerController()->PlayerCameraManager->ViewPitchMin;
+
+    // GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("NO"));
+
+	// if(IsValid(PotentiometerWidgetClass)){
+		// if(GEngine)
+     				// GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Shit works?????"));
+		// PotentiometerWidget = Cast<UPotentiometerWidget>(CreateWidget(GetWorld(), PotentiometerWidgetClass));
+	// }
 }
 
 void ASimuWare_ue4Character::Tick(float DeltaTime)
@@ -129,6 +148,38 @@ void ASimuWare_ue4Character::Tick(float DeltaTime)
 	End = ((ForwardVector * 200.f) + Start);
 
 	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
+
+	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, DefaultComponentQueryParams, DefaultResponseParam))
+    {
+        if (Hit.GetActor()->GetClass()->IsChildOf(APotentiometer::StaticClass()))
+        {
+            // Show potentiometer widget
+			bIsPotentiometer=true;
+			// if (!bIsPotentiometerWidget)
+        	// {
+            // // Add the PotentiometerWidget to the viewport
+            // bIsPotentiometerWidget = true;
+
+            // if(PotentiometerWidget)	PotentiometerWidget->AddToViewport(); 
+     		// 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Shit works?????"));
+
+
+        	// }
+            
+        }
+    }
+    else
+    {
+		bIsPotentiometer=false;
+        
+		// if (bIsPotentiometerWidget)
+        // {
+        //     // Remove the PotentiometerWidget from the viewport
+        //     bIsPotentiometerWidget = false;
+
+        //     if(PotentiometerWidget)	PotentiometerWidget->RemoveFromViewport();
+        // }
+    }
 
 	if(!bHoldingItem)
 	{

@@ -7,6 +7,8 @@
 #include "GameFramework/Character.h"
 #include "Pickup.h"
 #include "Item.h"
+#include "Potentiometer.h"
+#include "PotentiometerWidget.h"
 #include "SimuWare_ue4Character.generated.h"
 
 class UInputComponent;
@@ -101,6 +103,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 ItemIdx;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsPotentiometer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsPotentiometerWidget;
+
 	UPROPERTY(EditAnywhere)
 	class AItem* CurrentItem;
 
@@ -121,6 +129,14 @@ public:
 	
 	FComponentQueryParams DefaultComponentQueryParams;
 	FCollisionResponseParams DefaultResponseParam;
+
+	// Declare PotentiometerWidgetInstance as a member variable
+   	UPROPERTY(EditAnywhere, Category="Class Types")
+	TSubclassOf<UPotentiometerWidget> PotentiometerWidgetClass;
+
+	UPROPERTY(VisibleInstanceOnly, Category="Runtime")
+	UPotentiometerWidget* PotentiometerWidget;
+
 	
 
 
